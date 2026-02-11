@@ -22,8 +22,8 @@ EOT
     resource_group_name        = string
     virtual_network_gateway_id = string
     ip_configuration_id        = optional(string)
-    mode                       = optional(string, "EgressSnat")
-    type                       = optional(string, "Static")
+    mode                       = optional(string) # Default: "EgressSnat"
+    type                       = optional(string) # Default: "Static"
     external_mapping = object({
       address_space = string
       port_range    = optional(string)
