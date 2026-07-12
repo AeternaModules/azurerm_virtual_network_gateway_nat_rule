@@ -1,3 +1,7 @@
+output "virtual_network_gateway_nat_rules_id" {
+  description = "Map of id values across all virtual_network_gateway_nat_rules, keyed the same as var.virtual_network_gateway_nat_rules"
+  value       = { for k, v in azurerm_virtual_network_gateway_nat_rule.virtual_network_gateway_nat_rules : k => v.id }
+}
 output "virtual_network_gateway_nat_rules_external_mapping" {
   description = "Map of external_mapping values across all virtual_network_gateway_nat_rules, keyed the same as var.virtual_network_gateway_nat_rules"
   value       = { for k, v in azurerm_virtual_network_gateway_nat_rule.virtual_network_gateway_nat_rules : k => v.external_mapping }
