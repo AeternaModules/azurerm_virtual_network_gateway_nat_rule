@@ -24,43 +24,22 @@ EOT
     ip_configuration_id        = optional(string)
     mode                       = optional(string) # Default: "EgressSnat"
     type                       = optional(string) # Default: "Static"
-    external_mapping = object({
+    external_mapping = list(object({
       address_space = string
       port_range    = optional(string)
-    })
-    internal_mapping = object({
+    }))
+    internal_mapping = list(object({
       address_space = string
       port_range    = optional(string)
-    })
+    }))
   }))
-  validation {
-    condition = alltrue([
-      for k, v in var.virtual_network_gateway_nat_rules : (
-        length(v.name) > 0
-      )
-    ])
-    error_message = "must not be empty"
-  }
-  validation {
-    condition = alltrue([
-      for k, v in var.virtual_network_gateway_nat_rules : (
-        v.external_mapping.port_range == null || (length(v.external_mapping.port_range) > 0)
-      )
-    ])
-    error_message = "must not be empty"
-  }
-  validation {
-    condition = alltrue([
-      for k, v in var.virtual_network_gateway_nat_rules : (
-        v.internal_mapping.port_range == null || (length(v.internal_mapping.port_range) > 0)
-      )
-    ])
-    error_message = "must not be empty"
-  }
   # --- Unconfirmed validation candidates, derived from azurerm_virtual_network_gateway_nat_rule's provider source ---
   # Not auto-enabled: either a bespoke provider validator we can't safely translate,
   # or a path that crosses a list-typed block (needs its own for_each wrapping).
   # Review, translate into a real validation{} block above, and delete once confirmed.
+  # path: name
+  #   condition: length(value) > 0
+  #   message:   must not be empty
   # path: resource_group_name
   #   condition: length(value) <= 90
   #   message:   [from resourcegroups.ValidateName: invalid when len(value) > 90]
@@ -81,8 +60,14 @@ EOT
   #   source:    [from virtualnetworkgateways.ValidateVirtualNetworkGatewayID] err != nil
   # path: external_mapping.address_space
   #   source:    validation.IsCIDR(...) - no translation rule yet, add one
+  # path: external_mapping.port_range
+  #   condition: length(value) > 0
+  #   message:   must not be empty
   # path: internal_mapping.address_space
   #   source:    validation.IsCIDR(...) - no translation rule yet, add one
+  # path: internal_mapping.port_range
+  #   condition: length(value) > 0
+  #   message:   must not be empty
   # path: mode
   #   source:    validation.StringInSlice value list is not a literal []string - likely a generated PossibleValuesFor*() helper; resolve separately
   # path: type
