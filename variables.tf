@@ -22,8 +22,8 @@ EOT
     resource_group_name        = string
     virtual_network_gateway_id = string
     ip_configuration_id        = optional(string)
-    mode                       = optional(string) # Default: "EgressSnat"
-    type                       = optional(string) # Default: "Static"
+    mode                       = optional(string)
+    type                       = optional(string)
     external_mapping = list(object({
       address_space = string
       port_range    = optional(string)
@@ -33,6 +33,22 @@ EOT
       port_range    = optional(string)
     }))
   }))
+  validation {
+    condition = alltrue([
+      for k, v in var.virtual_network_gateway_nat_rules : (
+        length(v.external_mapping) >= 1
+      )
+    ])
+    error_message = "Each external_mapping list must contain at least 1 items"
+  }
+  validation {
+    condition = alltrue([
+      for k, v in var.virtual_network_gateway_nat_rules : (
+        length(v.internal_mapping) >= 1
+      )
+    ])
+    error_message = "Each internal_mapping list must contain at least 1 items"
+  }
   # --- Unconfirmed validation candidates, derived from azurerm_virtual_network_gateway_nat_rule's provider source ---
   # Not auto-enabled: either a bespoke provider validator we can't safely translate,
   # or a path that crosses a list-typed block (needs its own for_each wrapping).
